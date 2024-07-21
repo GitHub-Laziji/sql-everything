@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface DbService {
 
-    void createTable(String sid, String tableName, List<String> columnNameÏs);
+    void createTable(String sid, String tableName, List<String> columnNames);
 
     void insertData(String sid, String tableName, List<JSONObject> data);
 
-    void dropTable(String sid,String tableName);
+    void dropTable(String sid, String tableName);
 
-    List<JSONObject> query(String sid,String sql);
+    List<JSONObject> query(String sid, String sql);
 }

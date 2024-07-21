@@ -2,6 +2,7 @@ package org.laziji.sqleverything.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import org.laziji.sqleverything.service.DbService;
+import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Service
 public class DbServiceImpl implements DbService {
 
     static {
