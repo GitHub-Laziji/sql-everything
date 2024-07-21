@@ -6,7 +6,9 @@ import org.laziji.sqleverything.service.DbService;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DbServiceImpl implements DbService {
@@ -29,18 +31,42 @@ public class DbServiceImpl implements DbService {
                     )
             );
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 
     @Override
     public void insertData(String sid, String tableName, List<JSONObject> data) {
-
+        try (Connection conn = getConnection(sid)) {
+            for (JSONObject row : data) {
+                List<String> columns = new ArrayList<>();
+                List<Object> values = new ArrayList<>();
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    columns.add(entry.getKey());
+                    values.add(entry.getValue());
+                }
+                conn.createStatement().execute(
+                        String.format("insert into %s ( %s ) values ( %s );",
+                                escapeName(tableName),
+                                columns.stream().map(this::escapeName).collect(Collectors.joining(",")),
+                                values.stream().map(c -> "'" + c + "'").collect(Collectors.joining(","))
+                        )
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void dropTable(String sid, String tableName) {
-
+        try (Connection conn = getConnection(sid)) {
+            conn.createStatement().execute(
+                    String.format("drop table %s;", escapeName(tableName))
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -55,6 +81,7 @@ public class DbServiceImpl implements DbService {
     private String escapeName(String name) {
         return "`" + name.replace("`", "``") + "`";
     }
+
     private String escapeValue(Object value) {
         return value.toString();
     }
