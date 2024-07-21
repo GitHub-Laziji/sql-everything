@@ -1,19 +1,18 @@
-package org.laziji.sqleverything.service.impl;
+package org.laziji.sqleverything.util;
 
 import com.alibaba.fastjson.JSONObject;
-import org.laziji.sqleverything.service.DbService;
-import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
-@Service
-public class DbServiceImpl implements DbService {
+public class DbUtils {
 
     static {
         try {
@@ -23,8 +22,7 @@ public class DbServiceImpl implements DbService {
         }
     }
 
-    @Override
-    public void createTable(String sid, String tableName, List<String> columnNames) {
+    public static void createTable(String sid, String tableName, List<String> columnNames) {
         try (Connection conn = getConnection(sid)) {
             conn.createStatement().execute(
                     String.format("create table %s ( %s );",
@@ -37,8 +35,7 @@ public class DbServiceImpl implements DbService {
         }
     }
 
-    @Override
-    public void insertData(String sid, String tableName, List<JSONObject> data) {
+    public static void insertData(String sid, String tableName, List<JSONObject> data) {
         try (Connection conn = getConnection(sid)) {
             for (JSONObject row : data) {
                 List<String> columns = new ArrayList<>();
@@ -50,7 +47,7 @@ public class DbServiceImpl implements DbService {
                 conn.createStatement().execute(
                         String.format("insert into %s ( %s ) values ( %s );",
                                 escapeName(tableName),
-                                columns.stream().map(this::escapeName).collect(Collectors.joining(",")),
+                                columns.stream().map(DbUtils::escapeName).collect(Collectors.joining(",")),
                                 values.stream().map(c -> "'" + c + "'").collect(Collectors.joining(","))
                         )
                 );
@@ -60,8 +57,7 @@ public class DbServiceImpl implements DbService {
         }
     }
 
-    @Override
-    public void dropTable(String sid, String tableName) {
+    public static void dropTable(String sid, String tableName) {
         try (Connection conn = getConnection(sid)) {
             conn.createStatement().execute(
                     String.format("drop table %s;", escapeName(tableName))
@@ -71,20 +67,20 @@ public class DbServiceImpl implements DbService {
         }
     }
 
-    @Override
-    public List<JSONObject> query(String sid, String sql) {
+    public static List<JSONObject> query(String sid, String sql) {
         return List.of();
     }
 
-    private Connection getConnection(String sid) throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite::memdb1?mode=memory&cache=shared");
+    private static Connection getConnection(String sid) throws SQLException {
+        return DriverManager.getConnection(String.format("jdbc:sqlite:SID%s.db", sid));
     }
 
-    private String escapeName(String name) {
+    private static String escapeName(String name) {
         return "`" + name.replace("`", "``") + "`";
     }
 
-    private String escapeValue(Object value) {
+    private static String escapeValue(Object value) {
         return value.toString();
     }
+
 }
