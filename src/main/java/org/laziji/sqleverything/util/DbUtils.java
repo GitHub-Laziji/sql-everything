@@ -71,8 +71,16 @@ public class DbUtils {
         return List.of();
     }
 
+    public static void execute(String sid, String sql) {
+        try (Connection conn = getConnection(sid)) {
+            conn.createStatement().execute(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static Connection getConnection(String sid) throws SQLException {
-        return DriverManager.getConnection(String.format("jdbc:sqlite:SID%s.db", sid));
+        return DriverManager.getConnection(String.format("jdbc:sqlite:db/%s.db", sid));
     }
 
     private static String escapeName(String name) {
