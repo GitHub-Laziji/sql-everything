@@ -9,6 +9,7 @@ import org.laziji.sqleverything.bean.vo.ApiSelectOrNewDbVo;
 import org.laziji.sqleverything.service.impl.parser.BaseParser;
 import org.laziji.sqleverything.util.ApiUtils;
 import org.laziji.sqleverything.util.DbUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,12 @@ import java.util.UUID;
 public class ApiController {
 
 
-    @RequestMapping("selectOrNewDb")
+    @PostMapping("listDbs")
+    public Response listDbs() {
+        return Response.success(new File("./db").list());
+    }
+
+    @PostMapping("selectOrNewDb")
     public Response selectOrNewDb(@RequestBody ApiSelectOrNewDbVo params) {
         if (StringUtils.isNotBlank(params.getId())) {
             for (File f : Objects.requireNonNull(new File("db").listFiles())) {
