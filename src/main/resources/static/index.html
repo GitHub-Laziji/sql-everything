@@ -19,12 +19,18 @@
   <div id="app" style="width: 100vw;height: 100vh;display: flex;flex-direction: column;">
     <div style="width: 100%;height: 40px;border-bottom: 1px solid #CDD0D6;">head</div>
     <div style="width: 100%;flex: 1;display: flex;">
-      <div style="width: 200px;height: 100%;border-right: 1px solid #CDD0D6;padding: 10px;">
+      <div style="width: 300px;height: 100%;border-right: 1px solid #CDD0D6;padding: 10px;">
         <el-select v-model="selectDb" placeholder="Select" style="width: 100%">
           <el-option v-for="item in dbs" :key="item.name" :label="item.name" :value="item.name">
           </el-option>
           <template #footer>
-            <el-button style="width: 100%;" icon="Plus">
+            <div v-if="newDbForm.adding" style="display: flex;width: 100%;">
+              <el-input v-model="newDbForm.name" style="flex:1" size="small"></el-input>
+              <el-button size="small" style="margin-left: 8px;" icon="Check" @click="newDb(newDbForm.name)"></el-button>
+              <el-button @click="newDbForm.adding=false" size="small" style="margin-left: 8px;"
+                icon="Close"></el-button>
+            </div>
+            <el-button v-else style="width: 100%;" icon="Plus" @click="newDbForm.adding=true" size="small">
               新建数据库
             </el-button>
           </template>
@@ -42,22 +48,36 @@
   <script>
     const { createApp, ref } = Vue
     const app = createApp({
-      setup() {
-        const message = ref('Hello vue!')
+      data() {
         return {
-          dbs: ["aa"],
-          selectDb: "",
-          message
+          newDbForm: {
+            adding: false,
+            name: "",
+          },
+          dbs: [],
+          selectDb: ""
         }
       },
       mounted() {
-        httpPost("/api/listDbs").then(res => {
-          console.log(res);
-        })
+        this.listDbs();
       },
-      methods:{
-        selectOrNewDb(){
-          
+      methods: {
+        listDbs() {
+          httpPost("/api/listDbs").then(res => {
+            this.dbs = res.data;
+          })
+        },
+        selectDb(id) {
+          httpPost("/api/selectOrNewDb", { id }).then(res => {
+            
+            console.log(res);
+          })
+        },
+        newDb(name) {
+          httpPost("/api/selectOrNewDb", { name }).then(res => {
+            this.listDbs();
+            console.log(res);
+          })
         }
       }
     });

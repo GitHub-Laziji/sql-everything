@@ -1,5 +1,7 @@
 package org.laziji.sqleverything.conrtoller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.ImmutableMap;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.laziji.sqleverything.bean.Response;
@@ -15,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("api")
@@ -25,8 +27,20 @@ public class ApiController {
 
 
     @PostMapping("listDbs")
-    public Response listDbs() {
-        return Response.success(new File("./db").list());
+    public Response<List<Map<String, Object>>> listDbs() {
+        Pattern reg = Pattern.compile("^([a-z0-9]+)-(.+)\\.db$");
+        List<Map<String, Object>> dbs = new ArrayList<>();
+        for (File file : Objects.requireNonNull(new File("./db").listFiles())) {
+            String fileName = file.getName();
+            Matcher matcher = reg.matcher(fileName);
+            if (matcher.find()) {
+                dbs.add(ImmutableMap.of(
+                        "id", matcher.group(1),
+                        "name", matcher.group(2)
+                ));
+            }
+        }
+        return Response.success(dbs);
     }
 
     @PostMapping("selectOrNewDb")
@@ -43,17 +57,19 @@ public class ApiController {
         String id = UUID.randomUUID().toString().replace("-", "");
         ApiUtils.setSid(id + "-" + params.getName() + ".db");
         DbUtils.execute(ApiUtils.getSid(),
-                "create table __record__(" +
-                        "id INTEGER AUTOINCREMENT," +
-                        "fileName TEXT," +
-                        "tables TEXT," +
-                        ");");
+                """
+                        create table __record__(
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        fileName TEXT,
+                        tables TEXT
+                        )
+                        """);
         return Response.success(id);
     }
 
     @RequestMapping("listTables")
     public Response listTables() {
-        return Response.success(DbUtils.query(ApiUtils.getSid(),"select * from __record__"));
+        return Response.success(DbUtils.query(ApiUtils.getSid(), "select * from __record__"));
     }
 
     @RequestMapping("addTable")

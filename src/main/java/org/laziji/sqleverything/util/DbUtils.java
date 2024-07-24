@@ -80,7 +80,7 @@ public class DbUtils {
     }
 
     private static Connection getConnection(String sid) throws SQLException {
-        return DriverManager.getConnection(String.format("jdbc:sqlite:db/%s.db", sid));
+        return DriverManager.getConnection(String.format("jdbc:sqlite:db/%s", sid));
     }
 
     private static String escapeName(String name) {
