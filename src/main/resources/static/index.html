@@ -61,9 +61,17 @@
           <div style="display: flex;">
             <el-input v-model="addFileForm.form.fileName" :disabled="true"></el-input>
             <el-upload ref="uploadRef" :auto-upload="false" :show-file-list="false" :on-change="selectFile">
-              <el-button type="primary">点击上传</el-button>
+              <el-button type="primary" style="margin-left: 10px;">点击上传</el-button>
             </el-upload>
           </div>
+        </el-form-item>
+        <el-form-item label="文件类型">
+          <el-radio-group v-model="addFileForm.form.fileType">
+            <el-radio value="JSON">JSON</el-radio>
+            <el-radio label="CSV">CSV</el-radio>
+            <el-radio label="XLSX">Excel2007</el-radio>
+            <el-radio label="XLS">Excel2003</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="别名">
           <el-input v-model="addFileForm.form.config.alias"></el-input>
@@ -148,6 +156,15 @@
         },
         selectFile(file) {
           this.addFileForm.form.fileName = file.name;
+          if (/\.json$/i.test(file.name)) {
+            this.addFileForm.form.fileType = "JSON";
+          } else if (/\.csv$/i.test(file.name)) {
+            this.addFileForm.form.fileType = "CSV";
+          } else if (/\.xlsx$/i.test(file.name)) {
+            this.addFileForm.form.fileType = "XLSX";
+          } else if (/\.xls$/i.test(file.name)) {
+            this.addFileForm.form.fileType = "XLS";
+          }
           let reader = new FileReader();
           reader.onload = (e) => {
             console.log(e.target.result)
@@ -156,7 +173,9 @@
           reader.readAsDataURL(file.raw);
         },
         addFile() {
-
+          httpPost("/api/addFile", this.addFileForm.form).then(res => {
+            this.files = res.data;
+          });
         }
       }
     });

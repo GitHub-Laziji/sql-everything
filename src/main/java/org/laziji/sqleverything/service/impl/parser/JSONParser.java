@@ -2,7 +2,6 @@ package org.laziji.sqleverything.service.impl.parser;
 
 import com.alibaba.fastjson.JSONObject;
 import org.laziji.sqleverything.consts.FileType;
-import org.laziji.sqleverything.service.Parser;
 import org.springframework.stereotype.Service;
 
 @Service

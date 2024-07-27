@@ -4,6 +4,7 @@ public enum FileType {
 
     JSON,
     CSV,
-    EXCEL;
+    XLSX,
+    XLS;
 
 }
