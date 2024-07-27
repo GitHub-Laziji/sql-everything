@@ -19,8 +19,9 @@
   <div id="app" style="width: 100vw;height: 100vh;display: flex;flex-direction: column;">
     <div style="width: 100%;height: 40px;border-bottom: 1px solid #CDD0D6;">head</div>
     <div style="width: 100%;flex: 1;display: flex;">
-      <div style="width: 300px;height: 100%;border-right: 1px solid #CDD0D6;padding: 10px;">
-        <el-select v-model="selectDb" placeholder="Select" style="width: 100%" @change="listFiles" ref="selectDbEl">
+      <div
+        style="width: 300px;height: 100%;border-right: 1px solid #CDD0D6;padding: 10px;display: flex;flex-direction: column;">
+        <el-select v-model="activeDb" placeholder="Select" style="width: 100%" @change="listFiles" ref="selectDbEl">
           <el-option v-for="item in dbs" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
           <template #footer>
@@ -36,13 +37,14 @@
             </el-button>
           </template>
         </el-select>
-        <div v-if="!selectDb">
-          清选择项目
+        <div v-if="!activeDb" style="display: flex;flex:1;width: 100%;justify-content: center;align-items: center;">
+          请选择数据库
         </div>
-        <div v-else-if="!files.length">
-          <el-button @click="openAddFile">添加文件</el-button>
+        <div v-else-if="!files.length"
+          style="display: flex;flex:1;width: 100%;justify-content: center;align-items: center;">
+          <el-button type="text" icon="Plus" @click="openAddFile">添加文件</el-button>
         </div>
-        <div v-else>
+        <div v-else style="display: flex;flex:1;width: 100%;">
           <div v-for="item in files" :key="item.id">
             {{item.fileName}}
           </div>
@@ -54,11 +56,23 @@
     </div>
 
     <el-dialog v-model="addFileForm.visible" title="添加文件" width="500">
-      <span>This is a message</span>
+      <el-form :model="addFileForm.form" label-width="auto" style="max-width: 600px">
+        <el-form-item label="文件">
+          <div style="display: flex;">
+            <el-input v-model="addFileForm.form.fileName" :disabled="true"></el-input>
+            <el-upload ref="uploadRef" :auto-upload="false" :show-file-list="false" :on-change="selectFile">
+              <el-button type="primary">点击上传</el-button>
+            </el-upload>
+          </div>
+        </el-form-item>
+        <el-form-item label="别名">
+          <el-input v-model="addFileForm.form.config.alias"></el-input>
+        </el-form-item>
+      </el-form>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="addFileForm.visible = false">取消</el-button>
-          <el-button type="primary" @click="addFileForm.visible = false">
+          <el-button type="primary" @click="addFile">
             添加
           </el-button>
         </div>
@@ -92,7 +106,7 @@
             }
           },
           dbs: [],
-          selectDb: "",
+          activeDb: "",
           files: [],
         }
       },
@@ -112,7 +126,7 @@
         },
         newDb(name) {
           httpPost("/api/selectOrNewDb", { name }).then(res => {
-            this.selectDb = res.data;
+            this.activeDb = res.data;
             this.dbs.push({ id: res.data, name });
             this.newDbForm.form.name = "";
             this.newDbForm.visible = false;
@@ -131,6 +145,18 @@
         },
         openAddFile() {
           this.addFileForm.visible = true;
+        },
+        selectFile(file) {
+          this.addFileForm.form.fileName = file.name;
+          let reader = new FileReader();
+          reader.onload = (e) => {
+            console.log(e.target.result)
+            this.addFileForm.form.fileBase64 = e.target.result.substring(e.target.result.indexOf(",") + 1);
+          }
+          reader.readAsDataURL(file.raw);
+        },
+        addFile() {
+
         }
       }
     });
