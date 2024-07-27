@@ -3,7 +3,7 @@ package org.laziji.sqleverything.bean.vo;
 import com.alibaba.fastjson.JSONObject;
 import org.laziji.sqleverything.consts.FileType;
 
-public class ApiAddTableVo {
+public class ApiAddFileVo {
 
     private String fileName;
     private FileType fileType;

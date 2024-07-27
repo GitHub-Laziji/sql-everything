@@ -1,11 +1,11 @@
 package org.laziji.sqleverything.conrtoller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.ImmutableMap;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.laziji.sqleverything.bean.Response;
-import org.laziji.sqleverything.bean.vo.ApiAddTableVo;
+import org.laziji.sqleverything.bean.vo.ApiAddFileVo;
 import org.laziji.sqleverything.bean.vo.ApiQueryVo;
 import org.laziji.sqleverything.bean.vo.ApiSelectOrNewDbVo;
 import org.laziji.sqleverything.service.impl.parser.BaseParser;
@@ -44,7 +44,7 @@ public class ApiController {
     }
 
     @PostMapping("selectOrNewDb")
-    public Response selectOrNewDb(@RequestBody ApiSelectOrNewDbVo params) {
+    public Response<String> selectOrNewDb(@RequestBody ApiSelectOrNewDbVo params) {
         if (StringUtils.isNotBlank(params.getId())) {
             for (File f : Objects.requireNonNull(new File("db").listFiles())) {
                 if (f.getName().startsWith(params.getId())) {
@@ -58,7 +58,7 @@ public class ApiController {
         ApiUtils.setSid(id + "-" + params.getName() + ".db");
         DbUtils.execute(ApiUtils.getSid(),
                 """
-                        create table __record__(
+                        create table __file__(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         fileName TEXT,
                         tables TEXT
@@ -67,24 +67,26 @@ public class ApiController {
         return Response.success(id);
     }
 
-    @RequestMapping("listTables")
-    public Response listTables() {
-        return Response.success(DbUtils.query(ApiUtils.getSid(), "select * from __record__"));
+    @RequestMapping("listFiles")
+    public Response<List<JSONObject>> listFiles() {
+        List<JSONObject> files = DbUtils.query(ApiUtils.getSid(), "select * from __file__");
+        files.forEach(f -> f.put("tables", JSON.parseArray(f.getString("tables"))));
+        return Response.success(files);
     }
 
-    @RequestMapping("addTable")
-    public Response addTable(@RequestBody ApiAddTableVo params) {
+    @RequestMapping("addFile")
+    public Response<Object> addTable(@RequestBody ApiAddFileVo params) {
         BaseParser.getInstance(params.getFileType()).parse(params.getFileName(), params.getFileBase64(), params.getConfig());
         return Response.success();
     }
 
-//    @RequestMapping("deleteTable")
-//    public Response deleteTable() {
-//        return Response.success();
-//    }
+    @RequestMapping("deleteFile")
+    public Response<Object> deleteTable() {
+        return Response.success();
+    }
 
     @RequestMapping("query")
-    public Response query(@RequestBody ApiQueryVo params) {
+    public Response<List<JSONObject>> query(@RequestBody ApiQueryVo params) {
         return Response.success(DbUtils.query(ApiUtils.getSid(), params.getSql()));
     }
 }

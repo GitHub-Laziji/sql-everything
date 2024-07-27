@@ -25,3 +25,5 @@ src/test/java/pg/laziji/generator/**
 src/main/resources/*.yml
 !src/main/resources/application-example.yml
 .DS_Store
+
+.db

@@ -17,14 +17,14 @@ public class Response<T> {
         return success(null);
     }
 
-    public static Response<Object> error(String code, String message) {
-        Response<Object> res = new Response<>();
+    public static <T> Response<T> error(String code, String message) {
+        Response<T> res = new Response<>();
         res.code = code;
         res.message = message;
         return res;
     }
 
-    public static Response<Object> error(String message) {
+    public static <T> Response<T> error(String message) {
         return error("1", message);
     }
 

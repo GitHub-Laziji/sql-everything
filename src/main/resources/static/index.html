@@ -20,42 +20,80 @@
     <div style="width: 100%;height: 40px;border-bottom: 1px solid #CDD0D6;">head</div>
     <div style="width: 100%;flex: 1;display: flex;">
       <div style="width: 300px;height: 100%;border-right: 1px solid #CDD0D6;padding: 10px;">
-        <el-select v-model="selectDb" placeholder="Select" style="width: 100%">
-          <el-option v-for="item in dbs" :key="item.name" :label="item.name" :value="item.name">
+        <el-select v-model="selectDb" placeholder="Select" style="width: 100%" @change="listFiles" ref="selectDbEl">
+          <el-option v-for="item in dbs" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
           <template #footer>
-            <div v-if="newDbForm.adding" style="display: flex;width: 100%;">
-              <el-input v-model="newDbForm.name" style="flex:1" size="small"></el-input>
-              <el-button size="small" style="margin-left: 8px;" icon="Check" @click="newDb(newDbForm.name)"></el-button>
-              <el-button @click="newDbForm.adding=false" size="small" style="margin-left: 8px;"
+            <div v-if="newDbForm.visible" style="display: flex;width: 100%;">
+              <el-input v-model="newDbForm.form.name" style="flex:1" size="small"></el-input>
+              <el-button size="small" style="margin-left: 8px;" icon="Check"
+                @click="newDb(newDbForm.form.name)"></el-button>
+              <el-button @click="newDbForm.visible=false" size="small" style="margin-left: 8px;"
                 icon="Close"></el-button>
             </div>
-            <el-button v-else style="width: 100%;" icon="Plus" @click="newDbForm.adding=true" size="small">
+            <el-button v-else style="width: 100%;" icon="Plus" @click="newDbForm.visible=true" size="small">
               新建数据库
             </el-button>
           </template>
         </el-select>
+        <div v-if="!selectDb">
+          清选择项目
+        </div>
+        <div v-else-if="!files.length">
+          <el-button @click="openAddFile">添加文件</el-button>
+        </div>
+        <div v-else>
+          <div v-for="item in files" :key="item.id">
+            {{item.fileName}}
+          </div>
+        </div>
       </div>
       <div style="height: 100%;flex: 1;">
 
       </div>
     </div>
+
+    <el-dialog v-model="addFileForm.visible" title="添加文件" width="500">
+      <span>This is a message</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="addFileForm.visible = false">取消</el-button>
+          <el-button type="primary" @click="addFileForm.visible = false">
+            添加
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
   <script src="./vue3/vue.global.js"></script>
   <script src="./element-plus/index.full.js"></script>
   <script src="./element-plus/icon.js"></script>
   <script src="./util/api.js"></script>
   <script>
-    const { createApp, ref } = Vue
+    const { createApp, ref } = Vue;
     const app = createApp({
       data() {
         return {
           newDbForm: {
-            adding: false,
-            name: "",
+            visible: false,
+            form: {
+              name: ""
+            }
+          },
+          addFileForm: {
+            visible: false,
+            form: {
+              fileBase64: "",
+              fileName: "",
+              fileType: "",
+              config: {
+                alias: ""
+              }
+            }
           },
           dbs: [],
-          selectDb: ""
+          selectDb: "",
+          files: [],
         }
       },
       mounted() {
@@ -65,19 +103,34 @@
         listDbs() {
           httpPost("/api/listDbs").then(res => {
             this.dbs = res.data;
-          })
+          });
         },
         selectDb(id) {
           httpPost("/api/selectOrNewDb", { id }).then(res => {
-            
             console.log(res);
-          })
+          });
         },
         newDb(name) {
           httpPost("/api/selectOrNewDb", { name }).then(res => {
-            this.listDbs();
-            console.log(res);
-          })
+            this.selectDb = res.data;
+            this.dbs.push({ id: res.data, name });
+            this.newDbForm.form.name = "";
+            this.newDbForm.visible = false;
+            this.$message({
+              message: '添加成功',
+              type: 'success',
+            })
+            this.$refs.selectDbEl.blur();
+            this.listFiles();
+          });
+        },
+        listFiles() {
+          httpPost("/api/listFiles").then(res => {
+            this.files = res.data;
+          });
+        },
+        openAddFile() {
+          this.addFileForm.visible = true;
         }
       }
     });
