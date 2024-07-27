@@ -61,6 +61,7 @@ public class ApiController {
                         create table __file__(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         fileName TEXT,
+                        fileType TEXT,
                         tables TEXT
                         )
                         """);
@@ -75,7 +76,7 @@ public class ApiController {
     }
 
     @RequestMapping("addFile")
-    public Response<Object> addTable(@RequestBody ApiAddFileVo params) {
+    public Response<Object> addFile(@RequestBody ApiAddFileVo params) {
         BaseParser.getInstance(params.getFileType()).parse(params.getFileName(), params.getFileBase64(), params.getConfig());
         return Response.success();
     }

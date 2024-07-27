@@ -51,7 +51,7 @@
         </div>
       </div>
       <div style="height: 100%;flex: 1;">
-
+        <el-button @click="query('select * from aa1')">TETS</el-button>
       </div>
     </div>
 
@@ -174,7 +174,12 @@
         },
         addFile() {
           httpPost("/api/addFile", this.addFileForm.form).then(res => {
-            this.files = res.data;
+            this.$message.success('添加成功');
+          });
+        },
+        query(sql) {
+          httpPost("/api/query", { sql }).then(res => {
+            console.log(res.data);
           });
         }
       }
