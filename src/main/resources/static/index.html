@@ -12,16 +12,21 @@
     body {
       box-sizing: border-box;
     }
+
+    .el-collapse-item__content {
+      padding-bottom: 10px;
+    }
   </style>
 </head>
 
 <body style="padding: 0;margin: 0;">
   <div id="app" style="width: 100vw;height: 100vh;display: flex;flex-direction: column;">
-    <div style="width: 100%;height: 40px;border-bottom: 1px solid #CDD0D6;">head</div>
+    <!-- <div style="width: 100%;height: 40px;border-bottom: 1px solid #CDD0D6;">head</div> -->
     <div style="width: 100%;flex: 1;display: flex;">
       <div
-        style="width: 300px;height: 100%;border-right: 1px solid #CDD0D6;padding: 10px;display: flex;flex-direction: column;">
-        <el-select v-model="activeDb" placeholder="Select" style="width: 100%" @change="listFiles" ref="selectDbEl">
+        style="width: 300px;height: 100%;border-top: 1px solid #CDD0D6;padding: 10px;display: flex;flex-direction: column;">
+        <el-select v-model="activeDb" placeholder="请选择数据库" style="width: 100%" @change="v=>selectDb(v)"
+          ref="selectDbEl">
           <el-option v-for="item in dbs" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
           <template #footer>
@@ -44,14 +49,36 @@
           style="display: flex;flex:1;width: 100%;justify-content: center;align-items: center;">
           <el-button type="text" icon="Plus" @click="openAddFile">添加文件</el-button>
         </div>
-        <div v-else style="display: flex;flex:1;width: 100%;">
-          <div v-for="item in files" :key="item.id">
-            {{item.fileName}}
+        <div v-else style="display: flex;flex:1;width: 100%;margin-top: 10px;display: flex;flex-direction: column;">
+          <div style="display: flex;">
+            <el-button icon="Plus" @click="openAddFile" size="small"></el-button>
           </div>
+          <el-collapse accordion style="width: 100%;margin-top: 10px;">
+            <el-collapse-item v-for="item in files" :key="item.id" :name="id">
+              <template #title>
+                <Collection style="width: 1em; height: 1em; margin-right: 8px"></Collection>{{item.fileName}}<el-tag
+                  type="primary" size="small" style="margin-left: 8px">{{item.fileType}}</el-tag>
+              </template>
+              <div
+                style="display: flex;flex-direction: column;border: 1px solid #EBEEF5;border-radius: 4px;padding:10px">
+                <div v-for="tb in item.tables" :key="tb">
+                  <Memo style="width: 1em; height: 1em; margin-right: 8px"></Memo>{{tb}}
+                </div>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
         </div>
       </div>
       <div style="height: 100%;flex: 1;">
-        <el-button @click="query('select * from aa1')">TETS</el-button>
+
+        <el-tabs type="border-card" style="width: 100%;height: 100%;">
+          <el-tab-pane label="SQL">
+
+            <el-button @click="query('select * from aa1')">TETS</el-button>
+          </el-tab-pane>
+          <el-tab-pane label="结果"></el-tab-pane>
+        </el-tabs>
+
       </div>
     </div>
 
@@ -129,7 +156,7 @@
         },
         selectDb(id) {
           httpPost("/api/selectOrNewDb", { id }).then(res => {
-            console.log(res);
+            this.listFiles();
           });
         },
         newDb(name) {
@@ -174,7 +201,9 @@
         },
         addFile() {
           httpPost("/api/addFile", this.addFileForm.form).then(res => {
+            this.addFileForm.visible = false;
             this.$message.success('添加成功');
+            this.listFiles();
           });
         },
         query(sql) {
