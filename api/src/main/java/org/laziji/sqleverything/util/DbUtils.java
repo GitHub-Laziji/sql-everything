@@ -99,14 +99,14 @@ public class DbUtils {
         List<DbDto> dbs = new ArrayList<>();
         for (File f : Objects.requireNonNull(new File("db").listFiles())) {
             Matcher matcher = dbFileNameReg.matcher(f.getName());
-            DbDto db = new DbDto();
             if (matcher.find()) {
+                DbDto db = new DbDto();
                 db.setId(matcher.group(1));
                 db.setTimestamp(Long.parseLong(matcher.group(2)));
                 db.setName(matcher.group(4));
                 db.setFileName(f.getName());
+                dbs.add(db);
             }
-            dbs.add(db);
         }
         dbs.sort(Comparator.comparingLong(DbDto::getTimestamp));
         return dbs;
@@ -120,7 +120,7 @@ public class DbUtils {
         db.setId(db.getTimestamp() + "_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8));
         db.setFileName(db.getId() + "__" + db.getName() + ".db");
         try {
-            if (new File(db.getFileName()).createNewFile()) {
+            if (!new File(new File("db"), db.getFileName()).createNewFile()) {
                 throw new RuntimeException();
             }
         } catch (IOException e) {

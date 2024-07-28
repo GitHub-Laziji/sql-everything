@@ -27,7 +27,7 @@ public class ApiUtils {
 
     public static DbDto initDb(String name) {
         DbDto db = DbUtils.createDb(name);
-        DbUtils.execute(ApiUtils.getSid(),
+        DbUtils.execute(db.getFileName(),
                 """
                         create table __file__(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
