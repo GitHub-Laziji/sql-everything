@@ -1,14 +1,19 @@
 package org.laziji.sqleverything.util;
 
 import com.alibaba.fastjson.JSONObject;
+import org.laziji.sqleverything.bean.dto.DbDto;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DbUtils {
+
+    private static final Pattern dbFileNameReg = Pattern.compile("^((\\d{13})_([a-z0-9]+))__(.+)\\.db$");
 
     static {
         try {
@@ -89,8 +94,54 @@ public class DbUtils {
         }
     }
 
+    public static List<DbDto> listDbs() {
+        checkDbDir();
+        List<DbDto> dbs = new ArrayList<>();
+        for (File f : Objects.requireNonNull(new File("db").listFiles())) {
+            Matcher matcher = dbFileNameReg.matcher(f.getName());
+            DbDto db = new DbDto();
+            if (matcher.find()) {
+                db.setId(matcher.group(1));
+                db.setTimestamp(Long.parseLong(matcher.group(2)));
+                db.setName(matcher.group(4));
+                db.setFileName(f.getName());
+            }
+            dbs.add(db);
+        }
+        dbs.sort(Comparator.comparingLong(DbDto::getTimestamp));
+        return dbs;
+    }
+
+    public static DbDto createDb(String name) {
+        checkDbDir();
+        DbDto db = new DbDto();
+        db.setTimestamp(System.currentTimeMillis());
+        db.setName(name);
+        db.setId(db.getTimestamp() + "_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8));
+        db.setFileName(db.getId() + "__" + db.getName() + ".db");
+        try {
+            if (new File(db.getFileName()).createNewFile()) {
+                throw new RuntimeException();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return db;
+    }
+
     private static Connection getConnection(String sid) throws SQLException {
+        checkDbDir();
         return DriverManager.getConnection(String.format("jdbc:sqlite:db/%s", sid));
+    }
+
+    private static void checkDbDir() {
+        File dbDir = new File("db");
+        if (!dbDir.exists() && !dbDir.mkdir()) {
+            throw new RuntimeException();
+        }
+        if (dbDir.isFile()) {
+            throw new RuntimeException();
+        }
     }
 
     private static String escapeName(String name) {
