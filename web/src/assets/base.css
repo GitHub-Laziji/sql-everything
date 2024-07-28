@@ -6,3 +6,7 @@
   margin: 0;
   font-weight: normal;
 }
+
+.el-tabs__content{
+  padding: 0 !important;
+}

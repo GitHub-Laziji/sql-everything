@@ -52,8 +52,13 @@
 
                 <el-tabs type="border-card" style="width: 100%;height: 100%;">
                     <el-tab-pane label="SQL">
-
-                        <el-button @click="query('select * from aa1')">TETS</el-button>
+                        <div style="padding: 10px;">
+                            <el-input v-model="queryForm.form.sql" style="width: 100%;" type="textarea" class="sql-input"
+                                placeholder="SQL" />
+                        </div>
+                        <div style="display: flex;border-top: 1px solid #CDD0D6; width: 100%;padding: 10px;">
+                            <el-button @click="query">查询</el-button>
+                        </div>
                     </el-tab-pane>
                     <el-tab-pane label="结果"></el-tab-pane>
                 </el-tabs>
@@ -114,6 +119,11 @@ export default {
                     config: {
                         alias: ""
                     }
+                }
+            },
+            queryForm: {
+                form: {
+                    sql: ""
                 }
             },
             dbs: [],
@@ -182,11 +192,21 @@ export default {
                 this.listFiles();
             });
         },
-        query(sql) {
-            this.$http.post("/api/query", { sql }).then(res => {
+        query() {
+            this.$http.post("/api/query", { sql: this.queryForm.form.sql }).then(res => {
                 console.log(res.data);
             });
         }
     }
 }
 </script>
+
+<style>
+.sql-input {
+    height: calc(100vh - 114px) !important;
+}
+
+.sql-input textarea {
+    height: calc(100vh - 113px) !important;
+}
+</style>
