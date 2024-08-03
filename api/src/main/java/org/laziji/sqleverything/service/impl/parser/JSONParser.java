@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.laziji.sqleverything.consts.FileType;
 import org.laziji.sqleverything.util.ApiUtils;
 import org.laziji.sqleverything.util.DbUtils;
@@ -18,18 +19,18 @@ public class JSONParser extends BaseParser {
     @Override
     public void parse(String fileName, String fileBase64, JSONObject config) {
         String tableName = config.getString("alias");
-        ApiUtils.insertFileData(fileName, getFileType(), config, List.of(tableName));
         String data = new String(Base64.getDecoder().decode(fileBase64));
         JSONArray jsonDataOri = JSON.parseArray(data);
         List<JSONObject> jsonData = new ArrayList<>();
         for (int i = 0; i < jsonDataOri.size(); i++) {
             jsonData.add(jsonDataOri.getJSONObject(i));
         }
-        Set<String> columns = new HashSet<>();
+        Map<String, String> columns = new HashMap<>();
         for (JSONObject row : jsonData) {
-            columns.addAll(row.keySet());
+            row.keySet().forEach(k -> columns.put(k, "TEXT"));
         }
-        DbUtils.createTable(ApiUtils.getSid(), tableName, ImmutableList.copyOf(columns));
+        ApiUtils.insertFileData(fileName, getFileType(), config, ImmutableMap.of(tableName, columns));
+        DbUtils.createTable(ApiUtils.getSid(), tableName, columns);
         DbUtils.insertData(ApiUtils.getSid(), tableName, jsonData);
     }
 

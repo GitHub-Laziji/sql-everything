@@ -10,6 +10,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ApiUtils {
@@ -40,7 +41,7 @@ public class ApiUtils {
         return db;
     }
 
-    public static void insertFileData(String fileName, FileType fileType, JSONObject config, List<String> tables) {
+    public static void insertFileData(String fileName, FileType fileType, JSONObject config, Map<String, Map<String, String>> tables) {
         DbUtils.insertData(getSid(), "__file__", List.of(new JSONObject(ImmutableMap.of(
                 "fileName", fileName,
                 "fileType", fileType.name(),

@@ -23,11 +23,11 @@ public class DbUtils {
         }
     }
 
-    public static void createTable(String sid, String tableName, List<String> columnNames) {
+    public static void createTable(String sid, String tableName, Map<String, String> columns) {
         try (Connection conn = getConnection(sid)) {
             String ddl = String.format("create table %s ( %s );",
                     escapeName(tableName),
-                    columnNames.stream().map(c -> escapeName(c) + " text").collect(Collectors.joining(","))
+                    columns.entrySet().stream().map(e -> escapeName(e.getKey()) + " " + e.getValue()).collect(Collectors.joining(","))
             );
             conn.createStatement().execute(ddl);
         } catch (Exception e) {
