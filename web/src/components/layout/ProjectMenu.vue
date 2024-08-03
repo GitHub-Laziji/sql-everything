@@ -28,7 +28,7 @@
                 <el-button icon="Plus" @click="openAddFile" size="small"></el-button>
             </div>
             <el-tree :data="fileTree" :props="{ children: 'children', label: 'label' }"
-                style="width: 100%;margin-top: 10px;" default-expand-all>
+                style="width: 100%;margin-top: 10px;" default-expand-all :expand-on-click-node="false">
                 <template #default="{ data }">
                     <div style="display: flex;justify-content: space-between;width: 100%;align-items: center;">
                         <template v-if="data.type == 'FILE'">
@@ -52,6 +52,9 @@
                                 {{ data.label }}
                             </div>
                             <div>
+                                <el-button type="text" size="mini">
+                                    查看
+                                </el-button>
                             </div>
                         </template>
                     </div>
@@ -177,7 +180,6 @@ export default {
             }
             let reader = new FileReader();
             reader.onload = (e) => {
-                console.log(e.target.result)
                 this.addFileForm.form.fileBase64 = e.target.result.substring(e.target.result.indexOf(",") + 1);
             }
             reader.readAsDataURL(file.raw);
@@ -188,9 +190,6 @@ export default {
                 this.$message.success('添加成功');
                 this.listFiles();
             });
-        },
-        test(node, data) {
-            console.log(node, data)
         }
     }
 }
