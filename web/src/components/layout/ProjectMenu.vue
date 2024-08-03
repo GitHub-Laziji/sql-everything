@@ -156,7 +156,7 @@ export default {
                 let fileTree = [];
                 for (let f of res.data) {
                     let file = { label: f.fileName, children: [], type: "FILE", origin: f };
-                    for (let t of f.tables) {
+                    for (let t of JSON.parse(f.tables)) {
                         file.children.push({ label: t, children: [], type: "TABLE", origin: t });
                     }
                     fileTree.push(file);

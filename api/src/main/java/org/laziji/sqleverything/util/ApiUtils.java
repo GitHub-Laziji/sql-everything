@@ -33,24 +33,24 @@ public class ApiUtils {
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         fileName TEXT,
                         fileType TEXT,
+                        config TEXT,
                         tables TEXT
                         )
                         """);
         return db;
     }
 
-    public static void insertFileData(String fileName, FileType fileType, List<String> tables) {
+    public static void insertFileData(String fileName, FileType fileType, JSONObject config, List<String> tables) {
         DbUtils.insertData(getSid(), "__file__", List.of(new JSONObject(ImmutableMap.of(
                 "fileName", fileName,
                 "fileType", fileType.name(),
+                "config", JSON.toJSONString(config),
                 "tables", JSON.toJSONString(tables)
         ))));
     }
 
     public static List<JSONObject> queryFileData() {
-        List<JSONObject> files = DbUtils.query(ApiUtils.getSid(), "select * from __file__");
-        files.forEach(f -> f.put("tables", JSON.parseArray(f.getString("tables"))));
-        return files;
+        return DbUtils.query(ApiUtils.getSid(), "select * from __file__");
     }
 
 }

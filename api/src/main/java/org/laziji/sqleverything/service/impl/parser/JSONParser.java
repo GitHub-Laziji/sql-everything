@@ -18,7 +18,7 @@ public class JSONParser extends BaseParser {
     @Override
     public void parse(String fileName, String fileBase64, JSONObject config) {
         String tableName = config.getString("alias");
-        ApiUtils.insertFileData(fileName, getFileType(), List.of(tableName));
+        ApiUtils.insertFileData(fileName, getFileType(), config, List.of(tableName));
         String data = new String(Base64.getDecoder().decode(fileBase64));
         JSONArray jsonDataOri = JSON.parseArray(data);
         List<JSONObject> jsonData = new ArrayList<>();
