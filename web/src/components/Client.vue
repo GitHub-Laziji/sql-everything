@@ -2,10 +2,10 @@
     <div style="width: 100vw;height: 100vh;display: flex;flex-direction: column;">
         <div style="width: 100%;flex: 1;display: flex;">
             <div style="width: 300px;height: 100%;border-top: 1px solid #CDD0D6;">
-                <ProjectMenu></ProjectMenu>
+                <ProjectMenu @view-table="viewTable"></ProjectMenu>
             </div>
             <div style="height: 100%;flex: 1;">
-                <SqlBoard></SqlBoard>
+                <SqlBoard ref="sqlBoard"></SqlBoard>
             </div>
         </div>
     </div>
@@ -28,7 +28,9 @@ export default {
 
     },
     methods: {
-
+        viewTable(table) {
+            this.$refs.sqlBoard.query(`select * from ${table}`);
+        }
     }
 }
 </script>

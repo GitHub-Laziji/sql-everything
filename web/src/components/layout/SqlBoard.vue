@@ -6,13 +6,13 @@
                     placeholder="SQL" />
             </div>
             <div style="display: flex;border-top: 1px solid #CDD0D6; width: 100%;padding: 10px;">
-                <el-button @click="query">查询</el-button>
+                <el-button @click="query()">查询</el-button>
             </div>
         </el-tab-pane>
         <el-tab-pane label="结果" name="RESULT">
             <div style="padding: 10px;">
                 <el-table :data="data" height="calc(100vh - 61px)" style="width: 100%" border>
-                    <el-table-column v-for="col in columns" :key="col" :prop="col" :label="col" min-width="180" />
+                    <el-table-column v-for="col in columns" :key="col" :prop="col" :label="col" min-width="0" />
                 </el-table>
             </div>
         </el-tab-pane>
@@ -37,8 +37,8 @@ export default {
 
     },
     methods: {
-        query() {
-            this.$http.post("/api/query", { sql: this.queryForm.form.sql }).then(res => {
+        query(sql) {
+            this.$http.post("/api/query", { sql: sql || this.queryForm.form.sql }).then(res => {
                 this.data = res.data;
                 this.columns = [];
                 for (let k in this.data[0] || {}) {

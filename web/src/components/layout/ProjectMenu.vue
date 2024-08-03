@@ -52,7 +52,7 @@
                                 {{ data.label }}
                             </div>
                             <div>
-                                <el-button type="text" size="mini">
+                                <el-button type="text" size="mini" @click="viewTable(data.origin)">
                                     查看
                                 </el-button>
                             </div>
@@ -157,7 +157,7 @@ export default {
                 for (let f of res.data) {
                     let file = { label: f.fileName, children: [], type: "FILE", origin: f };
                     for (let t of f.tables) {
-                        file.children.push({ label: t, children: [], type: "TABLE" });
+                        file.children.push({ label: t, children: [], type: "TABLE", origin: t });
                     }
                     fileTree.push(file);
                 }
@@ -190,6 +190,9 @@ export default {
                 this.$message.success('添加成功');
                 this.listFiles();
             });
+        },
+        viewTable(table) {
+            this.$emit("viewTable", table);
         }
     }
 }
