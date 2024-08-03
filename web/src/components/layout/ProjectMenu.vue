@@ -32,11 +32,12 @@
                 <template #default="{ data }">
                     <div style="display: flex;justify-content: space-between;width: 100%;align-items: center;">
                         <template v-if="data.type == 'FILE'">
-                            <div>
-                                <el-tag effect="plain" round size="small">
+                            <div style="display: flex;align-items: center;">
+                                <Collection style="width: 1em; height: 1em; margin-right: 6px"></Collection>
+                                {{ data.label }}
+                                <el-tag effect="plain" round size="small" style="margin-left: 6px">
                                     {{ data.origin.fileType }}
                                 </el-tag>
-                                {{ data.label }}
                             </div>
                             <div>
                                 <el-button type="text" size="mini">
@@ -47,13 +48,26 @@
                                 </el-button>
                             </div>
                         </template>
-                        <template v-else>
-                            <div>
-                                {{ data.label }}
+                        <template v-else-if="data.type == 'TABLE'">
+                            <div style="display: flex;align-items: center;">
+                                <Memo style="width: 1em; height: 1em; margin-right: 6px"></Memo> {{ data.label }}
                             </div>
                             <div>
                                 <el-button type="text" size="mini" @click="viewTable(data.origin)">
                                     查看
+                                </el-button>
+                                <el-button type="text" size="mini">
+                                    复制
+                                </el-button>
+                            </div>
+                        </template>
+                        <template v-else-if="data.type == 'COLUMN'">
+                            <div>
+                                {{ data.label }}<span style="margin-left: 6px;color:#aaa">{{ data.origin }}</span>
+                            </div>
+                            <div>
+                                <el-button type="text" size="mini">
+                                    复制
                                 </el-button>
                             </div>
                         </template>
@@ -156,8 +170,13 @@ export default {
                 let fileTree = [];
                 for (let f of res.data) {
                     let file = { label: f.fileName, children: [], type: "FILE", origin: f };
-                    for (let t of JSON.parse(f.tables)) {
-                        file.children.push({ label: t, children: [], type: "TABLE", origin: t });
+                    let tables = JSON.parse(f.tables);
+                    for (let t in tables) {
+                        let table = { label: t, children: [], type: "TABLE", origin: t };
+                        for (let c in tables[t]) {
+                            table.children.push({ label: c, type: "COLUMN", origin: tables[t][c] });
+                        }
+                        file.children.push(table);
                     }
                     fileTree.push(file);
                 }
