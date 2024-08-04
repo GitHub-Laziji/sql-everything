@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.laziji.sqleverything.bean.Response;
 import org.laziji.sqleverything.bean.dto.DbDto;
+import org.laziji.sqleverything.bean.po.FilePo;
+import org.laziji.sqleverything.bean.po.TablePo;
 import org.laziji.sqleverything.bean.vo.ApiAddFileVo;
+import org.laziji.sqleverything.bean.vo.ApiDeleteFileVo;
 import org.laziji.sqleverything.bean.vo.ApiQueryVo;
 import org.laziji.sqleverything.bean.vo.ApiSelectOrNewDbVo;
 import org.laziji.sqleverything.service.impl.parser.BaseParser;
@@ -44,18 +47,21 @@ public class ApiController {
     }
 
     @RequestMapping("listFiles")
-    public Response<List<JSONObject>> listFiles() {
-        return Response.success(ApiUtils.queryFileData());
+    public Response<List<FilePo>> listFiles() {
+        return Response.success(ApiUtils.queryAllFileData());
     }
 
     @RequestMapping("addFile")
     public Response<Object> addFile(@RequestBody ApiAddFileVo params) {
-        BaseParser.getInstance(params.getFileType()).parse(params.getFileName(), params.getFileBase64(), params.getConfig());
+        BaseParser.getInstance(params.getFileType()).parse(params);
         return Response.success();
     }
 
     @RequestMapping("deleteFile")
-    public Response<Object> deleteTable() {
+    public Response<Object> deleteTable(@RequestBody ApiDeleteFileVo params) {
+        for (TablePo table : ApiUtils.queryFileData(params.getId()).getTables()) {
+            DbUtils.dropTable(ApiUtils.getSid(), table.getTableName());
+        }
         return Response.success();
     }
 

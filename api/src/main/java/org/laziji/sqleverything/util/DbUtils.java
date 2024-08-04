@@ -1,7 +1,9 @@
 package org.laziji.sqleverything.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Table;
 import org.laziji.sqleverything.bean.dto.DbDto;
+import org.laziji.sqleverything.bean.po.TablePo;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,11 +25,11 @@ public class DbUtils {
         }
     }
 
-    public static void createTable(String sid, String tableName, Map<String, String> columns) {
+    public static void createTable(String sid, TablePo table) {
         try (Connection conn = getConnection(sid)) {
             String ddl = String.format("create table %s ( %s );",
-                    escapeName(tableName),
-                    columns.entrySet().stream().map(e -> escapeName(e.getKey()) + " " + e.getValue()).collect(Collectors.joining(","))
+                    escapeName(table.getTableName()),
+                    table.getColumns().stream().map(e -> escapeName(e.getColumnName()) + " " + e.getColumnType()).collect(Collectors.joining(","))
             );
             conn.createStatement().execute(ddl);
         } catch (Exception e) {
@@ -145,11 +147,14 @@ public class DbUtils {
     }
 
     private static String escapeName(String name) {
-        return name;
+        return String.format("\"%s\"", name.replace("\"", "\"\""));
     }
 
     private static String escapeValue(Object value) {
-        return "'" + value.toString() + "'";
+        if (value == null) {
+            return "null";
+        }
+        return String.format("'%s'", value.toString().replace("'", "''"));
     }
 
 }

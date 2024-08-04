@@ -1,15 +1,37 @@
-package org.laziji.sqleverything.bean.vo;
+package org.laziji.sqleverything.bean.po;
 
 import com.alibaba.fastjson.JSONObject;
 import org.laziji.sqleverything.consts.FileType;
 
-public class ApiAddFileVo {
+import java.util.List;
 
+public class FilePo {
+
+    private Long id;
     private String fileName;
     private FileType fileType;
     private String alias;
-    private String fileBase64;
     private JSONObject config;
+    private List<TablePo> tables;
+
+    public FilePo() {
+    }
+
+    public FilePo(String fileName, FileType fileType, String alias, JSONObject config, List<TablePo> tables) {
+        this.fileName = fileName;
+        this.fileType = fileType;
+        this.alias = alias;
+        this.config = config;
+        this.tables = tables;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getFileName() {
         return fileName;
@@ -35,19 +57,19 @@ public class ApiAddFileVo {
         this.alias = alias;
     }
 
-    public String getFileBase64() {
-        return fileBase64;
-    }
-
-    public void setFileBase64(String fileBase64) {
-        this.fileBase64 = fileBase64;
-    }
-
     public JSONObject getConfig() {
         return config;
     }
 
     public void setConfig(JSONObject config) {
         this.config = config;
+    }
+
+    public List<TablePo> getTables() {
+        return tables;
+    }
+
+    public void setTables(List<TablePo> tables) {
+        this.tables = tables;
     }
 }

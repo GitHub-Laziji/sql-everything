@@ -5,6 +5,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.laziji.sqleverything.bean.po.ColumnPo;
+import org.laziji.sqleverything.bean.po.FilePo;
+import org.laziji.sqleverything.bean.po.TablePo;
+import org.laziji.sqleverything.bean.vo.ApiAddFileVo;
+import org.laziji.sqleverything.consts.ColumnType;
 import org.laziji.sqleverything.consts.FileType;
 import org.laziji.sqleverything.util.ApiUtils;
 import org.laziji.sqleverything.util.DbUtils;
@@ -17,21 +22,22 @@ public class JSONParser extends BaseParser {
 
 
     @Override
-    public void parse(String fileName, String fileBase64, JSONObject config) {
-        String tableName = config.getString("alias");
-        String data = new String(Base64.getDecoder().decode(fileBase64));
+    public void parse(ApiAddFileVo params) {
+        String data = new String(Base64.getDecoder().decode(params.getFileBase64()));
         JSONArray jsonDataOri = JSON.parseArray(data);
         List<JSONObject> jsonData = new ArrayList<>();
         for (int i = 0; i < jsonDataOri.size(); i++) {
             jsonData.add(jsonDataOri.getJSONObject(i));
         }
-        Map<String, String> columns = new HashMap<>();
+        Map<String, ColumnPo> columns = new HashMap<>();
         for (JSONObject row : jsonData) {
-            row.keySet().forEach(k -> columns.put(k, "TEXT"));
+            row.keySet().forEach(k -> columns.put(k, new ColumnPo(k, ColumnType.TEXT)));
         }
-        ApiUtils.insertFileData(fileName, getFileType(), config, ImmutableMap.of(tableName, columns));
-        DbUtils.createTable(ApiUtils.getSid(), tableName, columns);
-        DbUtils.insertData(ApiUtils.getSid(), tableName, jsonData);
+        TablePo table = new TablePo(params.getAlias(), new ArrayList<>(columns.values()));
+
+        ApiUtils.insertFileData(new FilePo(params.getFileName(), getFileType(), params.getAlias(), params.getConfig(), List.of(table)));
+        DbUtils.createTable(ApiUtils.getSid(), table);
+        DbUtils.insertData(ApiUtils.getSid(), params.getAlias(), jsonData);
     }
 
     @Override
