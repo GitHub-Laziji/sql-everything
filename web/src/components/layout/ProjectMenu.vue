@@ -40,10 +40,10 @@
                                 </el-tag>
                             </div>
                             <div>
-                                <el-button type="text" size="mini">
+                                <!-- <el-button type="text" size="mini">
                                     替换
-                                </el-button>
-                                <el-button type="text" size="mini">
+                                </el-button> -->
+                                <el-button type="text" size="mini" @click="deleteFile(data.origin)">
                                     删除
                                 </el-button>
                             </div>
@@ -53,22 +53,23 @@
                                 <Memo style="width: 1em; height: 1em; margin-right: 6px"></Memo> {{ data.label }}
                             </div>
                             <div>
-                                <el-button type="text" size="mini" @click="viewTable(data.origin)">
+                                <el-button type="text" size="mini" @click="viewTable(data.origin.tableName)">
                                     查看
                                 </el-button>
-                                <el-button type="text" size="mini">
+                                <!-- <el-button type="text" size="mini">
                                     复制
-                                </el-button>
+                                </el-button> -->
                             </div>
                         </template>
                         <template v-else-if="data.type == 'COLUMN'">
                             <div>
-                                {{ data.label }}<span style="margin-left: 6px;color:#aaa">{{ data.origin }}</span>
+                                {{ data.label }}<span style="margin-left: 6px;color:#aaa">{{ data.origin.columnType
+                                }}</span>
                             </div>
                             <div>
-                                <el-button type="text" size="mini">
+                                <!-- <el-button type="text" size="mini">
                                     复制
-                                </el-button>
+                                </el-button> -->
                             </div>
                         </template>
                     </div>
@@ -96,7 +97,7 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="别名">
-                <el-input v-model="addFileForm.form.config.alias"></el-input>
+                <el-input v-model="addFileForm.form.alias"></el-input>
             </el-form-item>
         </el-form>
         <template #footer>
@@ -127,8 +128,9 @@ export default {
                     fileBase64: "",
                     fileName: "",
                     fileType: "",
+                    alias: "",
                     config: {
-                        alias: ""
+
                     }
                 }
             },
@@ -170,15 +172,15 @@ export default {
                 let fileTree = [];
                 for (let f of res.data) {
                     let file = { label: f.fileName, children: [], type: "FILE", origin: f };
-                    let tables = JSON.parse(f.tables);
-                    for (let t in tables) {
-                        let table = { label: t, children: [], type: "TABLE", origin: t };
-                        for (let c in tables[t]) {
-                            table.children.push({ label: c, type: "COLUMN", origin: tables[t][c] });
+                    for (let t of f.tables) {
+                        let table = { label: t.tableName, children: [], type: "TABLE", origin: t };
+                        for (let c of t.columns) {
+                            table.children.push({ label: c.columnName, type: "COLUMN", origin: c });
                         }
                         file.children.push(table);
                     }
                     fileTree.push(file);
+
                 }
                 this.fileTree = fileTree;
             });
@@ -208,6 +210,13 @@ export default {
                 this.addFileForm.visible = false;
                 this.$message.success('添加成功');
                 this.listFiles();
+            });
+        },
+        deleteFile(file) {
+            this.$confirm(`是否确认删除[${file.fileName}]?`).then(() => {
+                this.$http.post("/api/deleteFile", { id: file.id }).then(res => {
+                    this.listFiles();
+                });
             });
         },
         viewTable(table) {
