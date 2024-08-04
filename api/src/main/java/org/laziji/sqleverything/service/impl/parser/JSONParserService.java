@@ -3,23 +3,24 @@ package org.laziji.sqleverything.service.impl.parser;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.laziji.sqleverything.bean.po.ColumnPo;
 import org.laziji.sqleverything.bean.po.FilePo;
 import org.laziji.sqleverything.bean.po.TablePo;
 import org.laziji.sqleverything.bean.vo.ApiAddFileVo;
 import org.laziji.sqleverything.consts.ColumnType;
 import org.laziji.sqleverything.consts.FileType;
-import org.laziji.sqleverything.util.ApiUtils;
+import org.laziji.sqleverything.service.ApiService;
 import org.laziji.sqleverything.util.DbUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class JSONParser extends BaseParser {
+public class JSONParserService extends BaseParserService {
 
+    @Autowired
+    private ApiService apiService;
 
     @Override
     public void parse(ApiAddFileVo params) {
@@ -35,9 +36,9 @@ public class JSONParser extends BaseParser {
         }
         TablePo table = new TablePo(params.getAlias(), new ArrayList<>(columns.values()));
 
-        ApiUtils.insertFileData(new FilePo(params.getFileName(), getFileType(), params.getAlias(), params.getConfig(), List.of(table)));
-        DbUtils.createTable(ApiUtils.getSid(), table);
-        DbUtils.insertData(ApiUtils.getSid(), params.getAlias(), jsonData);
+        apiService.insertFileData(new FilePo(params.getFileName(), getFileType(), params.getAlias(), params.getConfig(), List.of(table)));
+        DbUtils.createTable(apiService.getSid(), table);
+        DbUtils.insertData(apiService.getSid(), params.getAlias(), jsonData);
     }
 
     @Override

@@ -1,14 +1,14 @@
 package org.laziji.sqleverything.service.impl.parser;
 
 import org.laziji.sqleverything.consts.FileType;
-import org.laziji.sqleverything.service.Parser;
+import org.laziji.sqleverything.service.ParserService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class BaseParser implements Parser {
+public abstract class BaseParserService implements ParserService {
 
-    private static final Map<FileType, Parser> cache = new ConcurrentHashMap<>();
+    private static final Map<FileType, ParserService> cache = new ConcurrentHashMap<>();
 
     {
         cache.put(getFileType(), this);
@@ -16,7 +16,7 @@ public abstract class BaseParser implements Parser {
 
     protected abstract FileType getFileType();
 
-    public static Parser getInstance(FileType fileType) {
+    public static ParserService getInstance(FileType fileType) {
         return cache.get(fileType);
     }
 

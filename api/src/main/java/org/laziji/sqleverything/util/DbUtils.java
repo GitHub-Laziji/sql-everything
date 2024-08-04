@@ -1,7 +1,6 @@
 package org.laziji.sqleverything.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Table;
 import org.laziji.sqleverything.bean.dto.DbDto;
 import org.laziji.sqleverything.bean.po.TablePo;
 
