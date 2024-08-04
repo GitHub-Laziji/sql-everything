@@ -1,6 +1,6 @@
 package org.laziji.sqleverything.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.laziji.sqleverything.bean.dto.DbDto;
 import org.laziji.sqleverything.bean.po.FilePo;
 import org.laziji.sqleverything.bean.vo.ApiAddFileVo;

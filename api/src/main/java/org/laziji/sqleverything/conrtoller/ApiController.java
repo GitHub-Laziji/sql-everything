@@ -1,6 +1,6 @@
 package org.laziji.sqleverything.conrtoller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.laziji.sqleverything.bean.Response;
 import org.laziji.sqleverything.bean.dto.DbDto;
 import org.laziji.sqleverything.bean.po.FilePo;

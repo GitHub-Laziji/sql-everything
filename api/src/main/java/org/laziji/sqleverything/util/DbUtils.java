@@ -1,6 +1,6 @@
 package org.laziji.sqleverything.util;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.laziji.sqleverything.bean.dto.DbDto;
 import org.laziji.sqleverything.bean.po.TablePo;
 
@@ -36,6 +36,16 @@ public class DbUtils {
         }
     }
 
+    public static void dropTable(String sid, String tableName) {
+        try (Connection conn = getConnection(sid)) {
+            conn.createStatement().execute(
+                    String.format("drop table %s;", escapeName(tableName))
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void insertData(String sid, String tableName, List<JSONObject> data) {
         try (Connection conn = getConnection(sid)) {
             for (JSONObject row : data) {
@@ -58,11 +68,9 @@ public class DbUtils {
         }
     }
 
-    public static void dropTable(String sid, String tableName) {
+    public static void deleteData(String sid, String tableName, String where) {
         try (Connection conn = getConnection(sid)) {
-            conn.createStatement().execute(
-                    String.format("drop table %s;", escapeName(tableName))
-            );
+            conn.createStatement().execute(String.format("delete from %s where %s", escapeName(tableName), where));
         } catch (Exception e) {
             e.printStackTrace();
         }

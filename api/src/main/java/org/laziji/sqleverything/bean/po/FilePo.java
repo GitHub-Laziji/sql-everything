@@ -1,6 +1,6 @@
 package org.laziji.sqleverything.bean.po;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.laziji.sqleverything.consts.FileType;
 
 import java.util.List;

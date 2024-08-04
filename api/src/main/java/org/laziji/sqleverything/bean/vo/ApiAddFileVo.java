@@ -1,6 +1,6 @@
 package org.laziji.sqleverything.bean.vo;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.laziji.sqleverything.consts.FileType;
 
 public class ApiAddFileVo {
