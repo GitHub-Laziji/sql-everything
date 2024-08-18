@@ -79,8 +79,8 @@
     </div>
 
     <el-dialog v-model="addFileForm.visible" title="添加文件" width="500">
-        <el-form :model="addFileForm.form" label-width="auto" style="max-width: 600px">
-            <el-form-item label="文件">
+        <el-form :model="addFileForm.form" label-width="auto" style="max-width: 600px" ref="addFileFormRef">
+            <el-form-item label="文件" prop="fileName" :rules="[{ required: true, message: '请选择文件', trigger: 'change' }]">
                 <div style="display: flex;">
                     <el-input v-model="addFileForm.form.fileName" :disabled="true"></el-input>
                     <el-upload ref="uploadRef" :auto-upload="false" :show-file-list="false" :on-change="selectFile">
@@ -88,7 +88,8 @@
                     </el-upload>
                 </div>
             </el-form-item>
-            <el-form-item label="文件类型">
+            <el-form-item label="fileBase64" prop="fileBase64" style="display: none;"></el-form-item>
+            <el-form-item label="文件类型" prop="fileType" :rules="[{ required: true, message: '请选择文件类型', trigger: 'change' }]">
                 <el-radio-group v-model="addFileForm.form.fileType">
                     <el-radio value="JSON">JSON</el-radio>
                     <el-radio label="CSV">CSV</el-radio>
@@ -96,7 +97,7 @@
                     <el-radio label="XLS">Excel2003</el-radio>
                 </el-radio-group>
             </el-form-item>
-            <el-form-item label="别名">
+            <el-form-item label="别名" prop="alias" :rules="[{ required: true, message: '请输入表别名', trigger: 'change' }]">
                 <el-input v-model="addFileForm.form.alias"></el-input>
             </el-form-item>
         </el-form>
@@ -187,6 +188,7 @@ export default {
         },
         openAddFile() {
             this.addFileForm.visible = true;
+            this.$refs.addFileFormRef && this.$refs.addFileFormRef.resetFields();
         },
         selectFile(file) {
             this.addFileForm.form.fileName = file.name;
@@ -206,10 +208,14 @@ export default {
             reader.readAsDataURL(file.raw);
         },
         addFile() {
-            this.$http.post("/api/addFile", this.addFileForm.form).then(res => {
-                this.addFileForm.visible = false;
-                this.$message.success('添加成功');
-                this.listFiles();
+            this.$refs.addFileFormRef.validate((v) => {
+                if (v) {
+                    this.$http.post("/api/addFile", this.addFileForm.form).then(res => {
+                        this.addFileForm.visible = false;
+                        this.$message.success('添加成功');
+                        this.listFiles();
+                    });
+                }
             });
         },
         deleteFile(file) {
