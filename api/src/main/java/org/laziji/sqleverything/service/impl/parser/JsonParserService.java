@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class JSONParserService extends BaseParserService {
+public class JsonParserService extends BaseParserService {
 
     @Autowired
     private ApiService apiService;
